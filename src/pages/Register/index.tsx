@@ -1,17 +1,13 @@
-import { Dispatch, SetStateAction, useState } from "react"
+import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Flex, Box, Text, Spacer, Input, Image, Button } from "@chakra-ui/react"
 
-import { auth } from '../../services/FirebaseConfig'
-import { createUserWithEmailAndPassword, updateProfile, User, UserCredential } from 'firebase/auth'
 import { useAuth } from "../../contexts/AuthContext"
-
 interface UserCredentialProps {
   User: {
     user: string
   }
 }
-
 interface RegisterProps {
   email: string
   password: string

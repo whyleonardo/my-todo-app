@@ -1,5 +1,5 @@
 // import { User } from 'firebase/auth'
-import { useContext, useEffect, createContext, useState } from 'react';
+import { useContext, useEffect, createContext, useState, ReactNode } from 'react';
 import { auth } from '../services/FirebaseConfig'
 import {
   createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword,
@@ -11,21 +11,25 @@ import { } from 'react'
 import { useNavigate } from 'react-router-dom';
 
 
-interface AuthProps {
+interface AuthValueProps {
   signUp: (email: string, password: string, username: string) => void
-  // login: ({ email: string, password: string }) => void
   logout: () => Promise<void>
+  // login: ({ email: string, password: string }) => void
   currentUser: User
+
 }
 
-const AuthContext = createContext<AuthProps>({} as AuthProps)
+interface AuthProps {
+  children: ReactNode
+}
+
+const AuthContext = createContext<AuthValueProps>({} as AuthValueProps)
 
 export function useAuth() {
   return useContext(AuthContext);
 }
 
-export function AuthProvider({ children }: any) {
-
+export const AuthProvider = ({ children }: AuthProps) => {
 
   // const [currentUser, setCurrentUser] = useState();
   // const [loading, setLoading] = useState(true);
