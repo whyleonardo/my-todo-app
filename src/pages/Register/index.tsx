@@ -1,22 +1,48 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Dispatch, SetStateAction, useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
 import { Flex, Box, Text, Spacer, Input, Image, Button } from "@chakra-ui/react"
-interface RegisterProps {
-  username: string
-  password: string
+
+import { auth } from '../../services/FirebaseConfig'
+import { createUserWithEmailAndPassword, updateProfile, User, UserCredential } from 'firebase/auth'
+import { useAuth } from "../../contexts/AuthContext"
+
+interface UserCredentialProps {
+  User: {
+    user: string
+  }
 }
 
-export const Register = () => {
+interface RegisterProps {
+  email: string
+  password: string
+  username: string
+}
 
-  const [userInfo, setUserInfo] = useState<RegisterProps[]>([])
+export const Register = ({ setIsAuth }: any) => {
+
+  const [registerInfo, setRegisterInfo] = useState<RegisterProps>({} as RegisterProps)
+
+  const navigate = useNavigate()
+
+  const { signUp } = useAuth()
 
   const handleChangeRegisterInfo = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(userInfo)
-    setUserInfo({
-      ...userInfo,
+    setRegisterInfo({
+      ...registerInfo,
       [e.target.name]: e.target.value
     })
   }
+
+  const handleRegisterUser = () => {
+    const { email, password, username } = registerInfo
+    try {
+      signUp(email, password, username)
+      localStorage.setItem("isAuth", 'true')
+      setIsAuth(true)
+      navigate('/tasks')
+    } catch { }
+  }
+
   return (
     <Flex h='100vh'>
       <Flex w='50%' bg='gray' align='center' justify='center'>
@@ -47,22 +73,34 @@ export const Register = () => {
 
         <Flex direction='column' gap='0.5rem'>
           <Input
-            name="username"
+            name="email"
+            value={registerInfo.email}
             type='text'
+            color='brand.100'
+            focusBorderColor='tomato'
+            placeholder='Email'
+            onChange={handleChangeRegisterInfo}
+          />
+          <Input
+            name="username"
+            value={registerInfo.username}
+            type='text'
+            color='brand.100'
             focusBorderColor='tomato'
             placeholder='Username'
             onChange={handleChangeRegisterInfo}
           />
           <Input
             name="password"
+            value={registerInfo.password}
             type='password'
+            color='brand.100'
             focusBorderColor='tomato'
             placeholder='Password'
             onChange={handleChangeRegisterInfo}
-
           />
 
-          <Button fontWeight='black'> Register </Button>
+          <Button onClick={handleRegisterUser} fontWeight='black'> Register </Button>
         </Flex>
 
         <Text as='span'>
@@ -81,7 +119,6 @@ export const Register = () => {
           </Text>
         </Text>
       </Flex>
-
 
     </Flex >
   )

@@ -1,16 +1,24 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
-import { Flex, Box, Text, Spacer, Input, Image, Button } from "@chakra-ui/react"
+import { useEffect, useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { Flex, Box, Text, Spacer, Input, Image, Button, Icon } from "@chakra-ui/react"
+import { CheckAnimation } from "../../animations/CheckAnimation"
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { auth } from "../../services/FirebaseConfig"
 
 
 interface LoginProps {
-  username: string
+  email: string
   password: string
 }
 
 export const Login = () => {
 
-  const [userInfo, setUserInfo] = useState<LoginProps[]>([])
+  const [userInfo, setUserInfo] = useState<LoginProps>({
+    email: '',
+    password: ''
+
+  })
+
 
   const handleChangeLoginInfo = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log(userInfo)
@@ -19,10 +27,27 @@ export const Login = () => {
       [e.target.name]: e.target.value
     })
   }
+  const navigate = useNavigate()
+
+  const handleLoginUser = async () => {
+    const { email, password } = userInfo
+    try {
+      const user = await signInWithEmailAndPassword(auth, email, password)
+    } catch (err) {
+      console.log('error')
+    }
+    setUserInfo({
+      email: '',
+      password: ''
+    })
+    navigate('/tasks')
+  }
+
+
 
   return (
     <Flex h='100vh'>
-      <Flex w='50%' bg='gray' align='center' justify='center'>
+      <Flex w='50%' bg='brand.400' align='center' justify='center'>
         <Box>
           <Image
             boxSize='500px'
@@ -33,9 +58,10 @@ export const Login = () => {
 
       <Spacer />
 
-      <Flex w='50%' direction='column' align='center' gap='2rem' justify='center' bg='black'>
+      <Flex w='50%' direction='column' align='center' gap='1rem' justify='center' bg='brand.500'>
 
         <Box>
+          <Icon as={CheckAnimation} />
           <Text
             as='h1'
             color='white'
@@ -43,9 +69,8 @@ export const Login = () => {
             fontSize='3xl'
             textAlign='center'
             lineHeight='2rem'
-            mb='.3rem'
           >
-            Manage Your <Text as='span' color='tomato'>Tasks</Text>
+            Manage Your <Text as='span' color='brand.200'>Tasks</Text>
           </Text>
 
           <Text
@@ -56,36 +81,36 @@ export const Login = () => {
             textAlign='center'
             lineHeight='2rem'
           >
-            Manage Your <Text as='span' color='tomato'>Day</Text>
+            Manage Your <Text as='span' color='brand.200'>Day</Text>
           </Text>
         </Box>
 
         <Flex direction='column' gap='0.5rem'>
           <Input
-            name="username"
+            name="email"
             type='text'
-            focusBorderColor='tomato'
-            placeholder='Username'
+            focusBorderColor='brand.100'
+            placeholder='Email'
             onChange={handleChangeLoginInfo}
           />
           <Input
             name="password"
             type='password'
-            focusBorderColor='tomato'
+            focusBorderColor='brand.100'
             placeholder='Password'
             onChange={handleChangeLoginInfo}
           />
 
-          <Button fontWeight='black'> Login </Button>
+          <Button onClick={handleLoginUser} fontWeight='black'> Login </Button>
         </Flex>
 
-        <Text as='span'>
+        <Text color='brand.100' as='span'>
           Don't have account? {''}
           <Text
             as='span'
             textDecoration='underline'
             cursor='pointer'
-            color='purple'
+            color='brand.300'
             filter='auto'
             _hover={{ brightness: '100%' }}
           >

@@ -1,26 +1,28 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 
-import { ChakraProvider } from '@chakra-ui/react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { ChakraProvider, extendTheme } from '@chakra-ui/react'
 
 import { App } from './App'
-import { Login } from './pages/Login'
-import { Register } from './pages/Register'
-import { Tasks } from './pages/Tasks/index';
 
 import './styles/global.css'
 
+const theme = extendTheme({
+  colors: {
+    brand: {
+      100: '#fffded',
+      200: '#fce762',
+      300: '#ffb17a',
+      400: '#4f4789',
+      500: '#201335'
+    }
+  }
+})
+
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode >
-    <ChakraProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path='/' element={<Login />} />
-          <Route path='/register' element={<Register />} />
-          <Route path='/tasks' element={<Tasks />} />
-        </Routes>
-      </BrowserRouter>
+    <ChakraProvider theme={theme}>
+      <App />
     </ChakraProvider>
   </React.StrictMode>
 )
