@@ -1,127 +1,76 @@
 import { useEffect, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { Flex, Box, Text, Spacer, Input, Image, Button, Icon } from "@chakra-ui/react"
-import { CheckAnimation } from "../../animations/CheckAnimation"
-import { signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from "../../services/FirebaseConfig"
+import { useAuth } from "../../contexts/AuthContext"
+import { useNavigate } from "react-router-dom"
+import { Flex, useToast, Show, Hide } from "@chakra-ui/react"
 
+import { signInWithEmailAndPassword } from "firebase/auth"
+import { LoginInput } from './../../components/LoginInput/index';
+import { ImageBackground } from "../../components/ImageBackground"
 
-interface LoginProps {
+export interface LoginProps {
   email: string
   password: string
 }
 
-export const Login = () => {
 
-  const [userInfo, setUserInfo] = useState<LoginProps>({
-    email: '',
-    password: ''
+export const Login = ({ setIsAuth }: any) => {
 
+  const [userInfo, setUserInfo] = useState<LoginProps>({} as LoginProps)
+
+  const navigate = useNavigate()
+
+  const toast = useToast({
+    title: 'Error',
+    position: 'top-right',
+    status: 'error',
+    duration: 5000,
+    isClosable: true,
   })
 
+  const { auth } = useAuth()
 
   const handleChangeLoginInfo = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(userInfo)
     setUserInfo({
       ...userInfo,
       [e.target.name]: e.target.value
     })
   }
-  const navigate = useNavigate()
 
   const handleLoginUser = async () => {
     const { email, password } = userInfo
     try {
-      const user = await signInWithEmailAndPassword(auth, email, password)
+      await signInWithEmailAndPassword(auth, email, password)
+
     } catch (err) {
-      console.log('error')
+      err.code == "auth/missing-email" && toast({ description: 'Missing Email' })
+      err.code == "auth/invalid-email" && toast({ description: 'Invalid Email' })
+      err.code == "auth/wrong-password" && toast({ description: 'Wrong Password' })
+
+      setUserInfo({
+        email: '',
+        password: ''
+      })
+
+      return
     }
-    setUserInfo({
-      email: '',
-      password: ''
-    })
+    localStorage.setItem("isAuth", 'true')
+    setIsAuth(true)
     navigate('/tasks')
   }
 
 
-
   return (
     <Flex h='100vh'>
-      <Flex w='50%' bg='brand.400' align='center' justify='center'>
-        <Box>
-          <Image
-            boxSize='500px'
-            src='./ImageLogo.svg'
-          />
-        </Box>
-      </Flex>
 
-      <Spacer />
+      <Show above='sm'>
+        <ImageBackground src='./ImageLogo.svg' />
+      </Show>
 
-      <Flex w='50%' direction='column' align='center' gap='1rem' justify='center' bg='brand.500'>
-
-        <Box>
-          <Icon as={CheckAnimation} />
-          <Text
-            as='h1'
-            color='white'
-            fontWeight='black'
-            fontSize='3xl'
-            textAlign='center'
-            lineHeight='2rem'
-          >
-            Manage Your <Text as='span' color='brand.200'>Tasks</Text>
-          </Text>
-
-          <Text
-            as='h1'
-            color='white'
-            fontWeight='black'
-            fontSize='3xl'
-            textAlign='center'
-            lineHeight='2rem'
-          >
-            Manage Your <Text as='span' color='brand.200'>Day</Text>
-          </Text>
-        </Box>
-
-        <Flex direction='column' gap='0.5rem'>
-          <Input
-            name="email"
-            type='text'
-            focusBorderColor='brand.100'
-            placeholder='Email'
-            onChange={handleChangeLoginInfo}
-          />
-          <Input
-            name="password"
-            type='password'
-            focusBorderColor='brand.100'
-            placeholder='Password'
-            onChange={handleChangeLoginInfo}
-          />
-
-          <Button onClick={handleLoginUser} fontWeight='black'> Login </Button>
-        </Flex>
-
-        <Text color='brand.100' as='span'>
-          Don't have account? {''}
-          <Text
-            as='span'
-            textDecoration='underline'
-            cursor='pointer'
-            color='brand.300'
-            filter='auto'
-            _hover={{ brightness: '100%' }}
-          >
-            <Link to='/register'>
-              Register here.
-            </Link>
-          </Text>
-        </Text>
-      </Flex>
-
-
+      <LoginInput
+        handleChangeLoginInfo={handleChangeLoginInfo}
+        handleLoginUser={handleLoginUser}
+        userInfo={userInfo}
+      />
     </Flex >
   )
 }

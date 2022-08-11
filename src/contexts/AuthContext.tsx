@@ -2,30 +2,22 @@
 import { useContext, useEffect, createContext, useState, ReactNode } from 'react';
 import { auth } from '../services/FirebaseConfig'
 import {
-  createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword,
+  Auth, onAuthStateChanged,
   signOut,
-  updateProfile,
   User
 } from "firebase/auth";
-import { } from 'react'
-import { useNavigate } from 'react-router-dom';
-
-
 interface AuthValueProps {
-  signUp: (email: string, password: string, username: string) => void
+  auth: Auth
   logout: () => Promise<void>
-  // login: ({ email: string, password: string }) => void
   currentUser: User
-
 }
-
 interface AuthProps {
   children: ReactNode
 }
 
 const AuthContext = createContext<AuthValueProps>({} as AuthValueProps)
 
-export function useAuth() {
+export const useAuth = () => {
   return useContext(AuthContext);
 }
 
@@ -51,27 +43,13 @@ export const AuthProvider = ({ children }: AuthProps) => {
     })
   }, [])
 
-  const signUp = async (email: string, password: string, username: string) => {
-    try {
-      await createUserWithEmailAndPassword(auth, email, password)
-
-      await updateProfile(auth.currentUser as User, { displayName: username })
-
-    } catch (err) { console.log(err) }
-  }
-
-  // function login(email: string, password: string) {
-  //   return signInWithEmailAndPassword(auth, email, password);
-  // }
-
   function logout() {
     return signOut(auth);
   }
 
   const values = {
     currentUser,
-    signUp,
-    // login,
+    auth,
     logout
   }
 

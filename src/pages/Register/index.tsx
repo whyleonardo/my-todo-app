@@ -1,14 +1,12 @@
 import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { Flex, Box, Text, Spacer, Input, Image, Button } from "@chakra-ui/react"
-
 import { useAuth } from "../../contexts/AuthContext"
-interface UserCredentialProps {
-  User: {
-    user: string
-  }
-}
-interface RegisterProps {
+import { useNavigate } from "react-router-dom"
+import { Flex, Show, Spacer, useToast } from "@chakra-ui/react"
+
+import { createUserWithEmailAndPassword, updateProfile, User } from "firebase/auth"
+import { RegisterInput } from "../../components/RegisterInput"
+import { ImageBackground } from "../../components/ImageBackground"
+export interface RegisterProps {
   email: string
   password: string
   username: string
@@ -16,11 +14,23 @@ interface RegisterProps {
 
 export const Register = ({ setIsAuth }: any) => {
 
-  const [registerInfo, setRegisterInfo] = useState<RegisterProps>({} as RegisterProps)
+  const [registerInfo, setRegisterInfo] = useState<RegisterProps>({
+    email: '',
+    password: '',
+    username: ''
+  })
 
   const navigate = useNavigate()
 
-  const { signUp } = useAuth()
+  const { auth } = useAuth()
+
+  const toast = useToast({
+    title: 'Error',
+    position: 'top-right',
+    status: 'error',
+    duration: 5000,
+    isClosable: true,
+  })
 
   const handleChangeRegisterInfo = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRegisterInfo({
@@ -29,93 +39,46 @@ export const Register = ({ setIsAuth }: any) => {
     })
   }
 
-  const handleRegisterUser = () => {
+  const handleRegisterUser = async () => {
     const { email, password, username } = registerInfo
+
+    if (username == '') return toast({ description: 'Insert a username' })
+
     try {
-      signUp(email, password, username)
-      localStorage.setItem("isAuth", 'true')
-      setIsAuth(true)
-      navigate('/tasks')
-    } catch { }
+      await createUserWithEmailAndPassword(auth, email, password)
+      await updateProfile(auth.currentUser as User, { displayName: username })
+
+    } catch (err) {
+      err.code == "auth/admin-restricted-operation" && toast({ description: 'Missing Email' })
+      err.code == "auth/invalid-email" && toast({ description: 'Invalid Email' })
+      err.code == "auth/weak-password" && toast({ description: 'Weak Password' })
+      err.code == "auth/email-already-in-use" && toast({ description: ' Email Already in Use' })
+
+
+      setRegisterInfo({
+        email: '',
+        password: '',
+        username: ''
+      })
+      return
+    }
+    localStorage.setItem("isAuth", 'true')
+    setIsAuth(true)
+    navigate('/tasks')
   }
 
   return (
     <Flex h='100vh'>
-      <Flex w='50%' bg='gray' align='center' justify='center'>
-        <Box>
-          <Image
-            boxSize='500px'
-            src='./ImageLogo.svg'
-          />
-        </Box>
-      </Flex>
 
-      <Spacer />
+      <Show above='sm'>
+        <ImageBackground src='./ImageLogo2.svg' />
+      </Show>
 
-      <Flex w='50%' direction='column' align='center' gap='1.5rem' justify='center' bg='black'>
-
-        <Box>
-          <Text
-            as='h1'
-            color='white'
-            fontWeight='black'
-            fontSize='3xl'
-            textAlign='center'
-            lineHeight='2rem'
-          >
-            Create Your User
-          </Text>
-        </Box>
-
-        <Flex direction='column' gap='0.5rem'>
-          <Input
-            name="email"
-            value={registerInfo.email}
-            type='text'
-            color='brand.100'
-            focusBorderColor='tomato'
-            placeholder='Email'
-            onChange={handleChangeRegisterInfo}
-          />
-          <Input
-            name="username"
-            value={registerInfo.username}
-            type='text'
-            color='brand.100'
-            focusBorderColor='tomato'
-            placeholder='Username'
-            onChange={handleChangeRegisterInfo}
-          />
-          <Input
-            name="password"
-            value={registerInfo.password}
-            type='password'
-            color='brand.100'
-            focusBorderColor='tomato'
-            placeholder='Password'
-            onChange={handleChangeRegisterInfo}
-          />
-
-          <Button onClick={handleRegisterUser} fontWeight='black'> Register </Button>
-        </Flex>
-
-        <Text as='span'>
-          Already have an account? {''}
-          <Text
-            as='span'
-            textDecoration='underline'
-            cursor='pointer'
-            color='purple'
-            filter='auto'
-            _hover={{ brightness: '100%' }}
-          >
-            <Link to='/'>
-              Login here.
-            </Link>
-          </Text>
-        </Text>
-      </Flex>
-
+      <RegisterInput
+        registerInfo={registerInfo}
+        handleRegisterUser={handleRegisterUser}
+        handleChangeRegisterInfo={handleChangeRegisterInfo}
+      />
     </Flex >
   )
 }
