@@ -1,12 +1,12 @@
 import { Box, Button, Flex, Icon, Input, Text, useToast } from "@chakra-ui/react"
 import { Link } from "react-router-dom"
 import { CheckAnimation } from "../../animations/CheckAnimation"
-import { LoginProps } from "../../pages/Login"
+import { LoginInfoProps } from "../../pages/Login"
 
 interface LoginInputProps {
   handleChangeLoginInfo: (e: React.ChangeEvent<HTMLInputElement>) => void
   handleLoginUser: () => void
-  userInfo: LoginProps
+  userInfo: LoginInfoProps
 }
 
 export const LoginInput = ({ handleChangeLoginInfo, handleLoginUser, userInfo }: LoginInputProps) => {
