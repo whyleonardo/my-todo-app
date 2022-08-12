@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { SetStateAction, useEffect, useState } from "react"
 import { useAuth } from "../../contexts/AuthContext"
 import { useNavigate } from "react-router-dom"
 import { Flex, useToast, Show, Hide } from "@chakra-ui/react"
@@ -6,16 +6,21 @@ import { Flex, useToast, Show, Hide } from "@chakra-ui/react"
 import { signInWithEmailAndPassword } from "firebase/auth"
 import { LoginInput } from './../../components/LoginInput/index';
 import { ImageBackground } from "../../components/ImageBackground"
+import { Loading } from "../../components/Loading"
 
-export interface LoginProps {
+export interface LoginInfoProps {
   email: string
   password: string
 }
 
+interface LoginProps {
+  isAuth: string | null
+  setIsAuth: React.Dispatch<React.SetStateAction<string | null>>
+}
 
-export const Login = ({ setIsAuth }: any) => {
+export const Login = ({ setIsAuth, isAuth }: LoginProps) => {
 
-  const [userInfo, setUserInfo] = useState<LoginProps>({} as LoginProps)
+  const [userInfo, setUserInfo] = useState<LoginInfoProps>({} as LoginInfoProps)
 
   const navigate = useNavigate()
 
@@ -27,7 +32,7 @@ export const Login = ({ setIsAuth }: any) => {
     isClosable: true,
   })
 
-  const { auth } = useAuth()
+  const { auth, currentUser } = useAuth()
 
   const handleChangeLoginInfo = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserInfo({
@@ -54,24 +59,35 @@ export const Login = ({ setIsAuth }: any) => {
       return
     }
     localStorage.setItem("isAuth", 'true')
-    setIsAuth(true)
+    setIsAuth('true')
     navigate('/tasks')
   }
 
+  useEffect(() => {
+    isAuth == 'true' && navigate('/tasks')
+  }, [])
 
   return (
-    <Flex h='100vh'>
+    <>
+      {currentUser
+        ? <Loading />
+        :
+        (
+          <Flex h='100vh'>
 
-      <Show above='sm'>
-        <ImageBackground src='./ImageLogo.svg' />
-      </Show>
+            <Show above='sm'>
+              <ImageBackground src='./ImageLogo.svg' />
+            </Show>
 
-      <LoginInput
-        handleChangeLoginInfo={handleChangeLoginInfo}
-        handleLoginUser={handleLoginUser}
-        userInfo={userInfo}
-      />
-    </Flex >
+            <LoginInput
+              handleChangeLoginInfo={handleChangeLoginInfo}
+              handleLoginUser={handleLoginUser}
+              userInfo={userInfo}
+            />
+          </Flex >
+        )
+      }
+    </>
   )
 }
 

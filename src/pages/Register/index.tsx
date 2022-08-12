@@ -1,20 +1,25 @@
-import { useState } from "react"
+import { SetStateAction, useEffect, useState } from "react"
 import { useAuth } from "../../contexts/AuthContext"
 import { useNavigate } from "react-router-dom"
-import { Flex, Show, Spacer, useToast } from "@chakra-ui/react"
-
+import { Flex, Show, useToast } from "@chakra-ui/react"
 import { createUserWithEmailAndPassword, updateProfile, User } from "firebase/auth"
 import { RegisterInput } from "../../components/RegisterInput"
 import { ImageBackground } from "../../components/ImageBackground"
-export interface RegisterProps {
+import { Loading } from "../../components/Loading"
+export interface RegisterInfoProps {
   email: string
   password: string
   username: string
 }
 
-export const Register = ({ setIsAuth }: any) => {
+interface RegisterProps {
+  isAuth: string | null
+  setIsAuth: React.Dispatch<React.SetStateAction<string | null>>
+}
 
-  const [registerInfo, setRegisterInfo] = useState<RegisterProps>({
+export const Register = ({ setIsAuth, isAuth }: RegisterProps) => {
+
+  const [registerInfo, setRegisterInfo] = useState<RegisterInfoProps>({
     email: '',
     password: '',
     username: ''
@@ -22,7 +27,7 @@ export const Register = ({ setIsAuth }: any) => {
 
   const navigate = useNavigate()
 
-  const { auth } = useAuth()
+  const { auth, currentUser } = useAuth()
 
   const toast = useToast({
     title: 'Error',
@@ -63,23 +68,38 @@ export const Register = ({ setIsAuth }: any) => {
       return
     }
     localStorage.setItem("isAuth", 'true')
-    setIsAuth(true)
+    setIsAuth('true')
     navigate('/tasks')
   }
 
+  useEffect(() => {
+    isAuth == 'true' && navigate('/tasks')
+  }, [])
+
   return (
-    <Flex h='100vh'>
+    <>
+      {currentUser
+        ? <Loading />
+        :
+        (
+          <Flex h='100vh'>
 
-      <Show above='sm'>
-        <ImageBackground src='./ImageLogo2.svg' />
-      </Show>
+            <Show above='sm'>
+              <ImageBackground src='./ImageLogo2.svg' />
+            </Show>
 
-      <RegisterInput
-        registerInfo={registerInfo}
-        handleRegisterUser={handleRegisterUser}
-        handleChangeRegisterInfo={handleChangeRegisterInfo}
-      />
-    </Flex >
+            <RegisterInput
+              registerInfo={registerInfo}
+              handleRegisterUser={handleRegisterUser}
+              handleChangeRegisterInfo={handleChangeRegisterInfo}
+            />
+          </Flex >
+        )
+      }
+    </>
+
+
+
   )
 }
 
