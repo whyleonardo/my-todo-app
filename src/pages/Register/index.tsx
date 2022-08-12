@@ -6,6 +6,9 @@ import { createUserWithEmailAndPassword, updateProfile, User } from "firebase/au
 import { RegisterInput } from "../../components/RegisterInput"
 import { ImageBackground } from "../../components/ImageBackground"
 import { Loading } from "../../components/Loading"
+import { db } from "../../services/FirebaseConfig";
+import { addDoc, getDocs } from "firebase/firestore";
+import { useDatabase } from './../../contexts/DatabaseContext';
 export interface RegisterInfoProps {
   email: string
   password: string
@@ -25,6 +28,7 @@ export const Register = ({ setIsAuth, isAuth }: RegisterProps) => {
     username: ''
   })
 
+
   const navigate = useNavigate()
 
   const { auth, currentUser } = useAuth()
@@ -41,6 +45,15 @@ export const Register = ({ setIsAuth, isAuth }: RegisterProps) => {
     setRegisterInfo({
       ...registerInfo,
       [e.target.name]: e.target.value
+    })
+  }
+
+  const { userCollectionRef } = useDatabase()
+
+  const createUserInDB = async (displayName: string | null, uid: string | null) => {
+    await addDoc(userCollectionRef, {
+      username: displayName,
+      uid: uid
     })
   }
 
@@ -67,6 +80,12 @@ export const Register = ({ setIsAuth, isAuth }: RegisterProps) => {
       })
       return
     }
+
+    if (auth.currentUser) {
+      const { displayName, uid } = auth.currentUser
+      createUserInDB(displayName, uid)
+    }
+
     localStorage.setItem("isAuth", 'true')
     setIsAuth('true')
     navigate('/tasks')
@@ -83,7 +102,6 @@ export const Register = ({ setIsAuth, isAuth }: RegisterProps) => {
         :
         (
           <Flex h='100vh'>
-
             <Show above='sm'>
               <ImageBackground src='./ImageLogo2.svg' />
             </Show>

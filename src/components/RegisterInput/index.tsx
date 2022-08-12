@@ -1,11 +1,11 @@
 import { Box, Button, Flex, Input, Text } from "@chakra-ui/react"
 import { Link } from "react-router-dom"
-import { RegisterProps } from './../../pages/Register/index';
+import { RegisterInfoProps } from './../../pages/Register/index';
 
 interface RegisterInputProps {
   handleRegisterUser: () => void
   handleChangeRegisterInfo: (e: React.ChangeEvent<HTMLInputElement>) => void
-  registerInfo: RegisterProps
+  registerInfo: RegisterInfoProps
 }
 
 export const RegisterInput = ({ handleRegisterUser, handleChangeRegisterInfo, registerInfo }: RegisterInputProps) => {

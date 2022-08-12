@@ -37,15 +37,15 @@ export const AuthProvider = ({ children }: AuthProps) => {
 
   const [currentUser, setCurrentUser] = useState<any>();
 
+  function logout() {
+    return signOut(auth);
+  }
+
   useEffect(() => {
     onAuthStateChanged(auth, (currentUser) => {
       setCurrentUser(currentUser)
     })
   }, [])
-
-  function logout() {
-    return signOut(auth);
-  }
 
   const values = {
     currentUser,
