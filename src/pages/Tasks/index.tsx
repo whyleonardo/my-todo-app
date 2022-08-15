@@ -70,8 +70,6 @@ export const Tasks = ({ setIsAuth }: any) => {
     setTasks(tasksData)
   }
 
-  // console.log(tasksDocRef)
-
   const handleCreateNewTask = async () => {
     await addDoc(tasksDocRef, {
       title: newTaskInfo.title,
