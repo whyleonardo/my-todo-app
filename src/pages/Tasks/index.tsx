@@ -1,23 +1,43 @@
 import { useEffect, useState } from "react"
 import { useAuth } from './../../contexts/AuthContext';
 import { useNavigate } from "react-router-dom"
-import { Button, Divider, Flex, Grid, Text, Spacer } from '@chakra-ui/react';
+import {
+  Button, Divider, Flex, Grid, Text, Spacer, useDisclosure
+} from '@chakra-ui/react';
+
 import { Loading } from "../../components/Loading";
 import { Header } from "../../components/Header";
 import { TaskCard } from "../../components/TaskCard";
 
 import { db } from "../../services/FirebaseConfig";
-import { collection, getDocs, doc, DocumentData } from "firebase/firestore";
+import { collection, getDocs, addDoc, DocumentData, CollectionReference } from "firebase/firestore";
+import { ModalNewTask } from '../../components/ModalNewTask/index';
 
-// export interface TaskProps {
-//   title: string
-//   isCompleted: boolean
-// }
+interface TasksInfoProps {
+  title: string
+  description: string
+  isCompleted: boolean
+}
 
 export const Tasks = ({ setIsAuth }: any) => {
-  const { logout, currentUser } = useAuth()
   const [tasks, setTasks] = useState<DocumentData[]>([])
-  const [userInfo, setUserInfo] = useState({})
+  const [newTaskInfo, setNewTaskInfo] = useState<TasksInfoProps>({
+    title: '',
+    description: '',
+    isCompleted: false
+  })
+  const [tasksDocRef, setTasksDocRef] = useState<CollectionReference<DocumentData>>({} as CollectionReference<DocumentData>)
+
+
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { logout, currentUser } = useAuth()
+
+  const handleChangeTask = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTaskInfo({
+      ...newTaskInfo,
+      [e.target.name]: e.target.value
+    })
+  }
 
   const navigate = useNavigate()
 
@@ -30,9 +50,9 @@ export const Tasks = ({ setIsAuth }: any) => {
       });
   }
 
+  const userCollectionRef = collection(db, 'user')
 
   const getTasks = async () => {
-    const userCollectionRef = collection(db, 'user')
     const data = await getDocs(userCollectionRef)
 
     const searchUserUid = data.docs.map((doc) => (doc.get('uid'))).filter((uid) => uid == currentUser.uid)
@@ -40,16 +60,33 @@ export const Tasks = ({ setIsAuth }: any) => {
       .map(doc => ({ ...doc.data(), id: doc.id, uid: doc.get('uid') }))
       .filter((user) => user.uid == searchUserUid && user.id)
 
-    const { id, uid } = searchUserID[0]
+    const { id } = searchUserID[0]
 
     const tasksCollectionRef = collection(db, `user/${id}/tasks`)
     const tasks = await getDocs(tasksCollectionRef)
-    const tasksData = (tasks.docs.map((doc) => (doc.data())))
+    const tasksData = tasks.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
 
+    setTasksDocRef(tasksCollectionRef)
     setTasks(tasksData)
   }
 
-  const handleAddNewTask = () => { }
+  // console.log(tasksDocRef)
+
+  const handleCreateNewTask = async () => {
+    await addDoc(tasksDocRef, {
+      title: newTaskInfo.title,
+      description: newTaskInfo.description,
+      isCompleted: newTaskInfo.isCompleted
+    })
+
+    setNewTaskInfo({
+      title: '',
+      description: '',
+      isCompleted: false
+    })
+    onClose()
+    getTasks()
+  }
 
   return (
     <>
@@ -73,7 +110,9 @@ export const Tasks = ({ setIsAuth }: any) => {
               </Flex>
 
               <Flex flexDirection='column' px='2rem' pb='1rem'>
+
                 <Button
+                  onClick={onOpen}
                   alignSelf='end'
                   bg='brand.400'
                   filter='auto'
@@ -83,14 +122,28 @@ export const Tasks = ({ setIsAuth }: any) => {
                 >
                   Add New Task
                 </Button>
-                <Grid pt='1rem' templateColumns='repeat(5, 1fr)' gap='2rem'>
-                  {tasks.length > 0 && tasks.map((task) => (
-                    <TaskCard
-                      title={task.title}
-                    />
-                  ))}
+
+                <Grid pt='1rem' templateColumns='repeat(4, 1fr)' gap='2rem'>
+                  {
+                    tasks.length > 0 && tasks.map((task) => (
+                      <TaskCard
+                        key={task.id}
+                        title={task.title}
+                      />
+                    ))
+                  }
                 </Grid>
               </Flex>
+
+
+              <ModalNewTask
+                onClose={onClose}
+                isOpen={isOpen}
+                handleChangeTask={handleChangeTask}
+                handleCreateNewTask={handleCreateNewTask}
+                newTaskInfo={newTaskInfo}
+              />
+
             </>
           )
           :

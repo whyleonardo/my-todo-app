@@ -1,7 +1,7 @@
-import { SetStateAction, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useAuth } from "../../contexts/AuthContext"
 import { useNavigate } from "react-router-dom"
-import { Flex, Show, useToast } from "@chakra-ui/react"
+import { Flex, resolveStyleConfig, Show, useToast } from "@chakra-ui/react"
 import { createUserWithEmailAndPassword, updateProfile, User } from "firebase/auth"
 import { RegisterInput } from "../../components/RegisterInput"
 import { ImageBackground } from "../../components/ImageBackground"
@@ -28,10 +28,13 @@ export const Register = ({ setIsAuth, isAuth }: RegisterProps) => {
     username: ''
   })
 
-
   const navigate = useNavigate()
 
   const { auth, currentUser } = useAuth()
+
+  const { getTasks } = useDatabase()
+
+  console.log(getTasks)
 
   const toast = useToast({
     title: 'Error',
@@ -49,7 +52,7 @@ export const Register = ({ setIsAuth, isAuth }: RegisterProps) => {
   }
 
   // const { userCollectionRef } = useDatabase()
-  
+
   const userCollectionRef = collection(db, 'user')
 
   const createUserInDB = async (displayName: string | null, uid: string | null) => {
