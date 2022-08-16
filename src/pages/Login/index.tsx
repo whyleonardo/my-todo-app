@@ -1,12 +1,13 @@
-import { SetStateAction, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useAuth } from "../../contexts/AuthContext"
 import { useNavigate } from "react-router-dom"
-import { Flex, useToast, Show, Hide } from "@chakra-ui/react"
+import { Flex, useToast, Show } from "@chakra-ui/react"
 
 import { signInWithEmailAndPassword } from "firebase/auth"
 import { LoginInput } from './../../components/LoginInput/index';
 import { ImageBackground } from "../../components/ImageBackground"
-import { Loading } from "../../components/Loading"
+
+
 
 export interface LoginInfoProps {
   email: string
@@ -69,24 +70,17 @@ export const Login = ({ setIsAuth, isAuth }: LoginProps) => {
 
   return (
     <>
-      {currentUser
-        ? <Loading />
-        :
-        (
-          <Flex h='100vh'>
+      <Flex h='100vh'>
+        <Show above='sm'>
+          <ImageBackground src='./ImageLogo.svg' />
+        </Show>
 
-            <Show above='sm'>
-              <ImageBackground src='./ImageLogo.svg' />
-            </Show>
-
-            <LoginInput
-              handleChangeLoginInfo={handleChangeLoginInfo}
-              handleLoginUser={handleLoginUser}
-              userInfo={userInfo}
-            />
-          </Flex >
-        )
-      }
+        <LoginInput
+          handleChangeLoginInfo={handleChangeLoginInfo}
+          handleLoginUser={handleLoginUser}
+          userInfo={userInfo}
+        />
+      </Flex >
     </>
   )
 }

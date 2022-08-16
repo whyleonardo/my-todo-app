@@ -7,7 +7,7 @@ import { RegisterInput } from "../../components/RegisterInput"
 import { ImageBackground } from "../../components/ImageBackground"
 import { Loading } from "../../components/Loading"
 import { db } from "../../services/FirebaseConfig";
-import { addDoc, collection, getDocs } from "firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
 import { useDatabase } from './../../contexts/DatabaseContext';
 export interface RegisterInfoProps {
   email: string
@@ -56,6 +56,7 @@ export const Register = ({ setIsAuth, isAuth }: RegisterProps) => {
   const userCollectionRef = collection(db, 'user')
 
   const createUserInDB = async (displayName: string | null, uid: string | null) => {
+
     await addDoc(userCollectionRef, {
       username: displayName,
       uid: uid

@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Input, Text } from "@chakra-ui/react"
+import { Box, Button, Flex, Input, Text, useColorModeValue } from "@chakra-ui/react"
 import { Link } from "react-router-dom"
 import { RegisterInfoProps } from './../../pages/Register/index';
 
@@ -9,6 +9,9 @@ interface RegisterInputProps {
 }
 
 export const RegisterInput = ({ handleRegisterUser, handleChangeRegisterInfo, registerInfo }: RegisterInputProps) => {
+
+  const inputColor = useColorModeValue('brand.100', 'brand.100')
+
   return (
     <Flex w={{ base: '100%', md: '50%' }} direction='column' align='center' gap='1.5rem' justify='center' bg='brand.500'>
       <Box>
@@ -31,6 +34,7 @@ export const RegisterInput = ({ handleRegisterUser, handleChangeRegisterInfo, re
           type='text'
           color='brand.100'
           focusBorderColor='brand.400'
+          borderColor={inputColor}
           placeholder='Email'
           onChange={handleChangeRegisterInfo}
         />
@@ -39,6 +43,7 @@ export const RegisterInput = ({ handleRegisterUser, handleChangeRegisterInfo, re
           value={registerInfo.username}
           type='text'
           color='brand.100'
+          borderColor={inputColor}
           focusBorderColor='brand.400'
           placeholder='Username'
           onChange={handleChangeRegisterInfo}
@@ -48,6 +53,7 @@ export const RegisterInput = ({ handleRegisterUser, handleChangeRegisterInfo, re
           value={registerInfo.password}
           type='password'
           color='brand.100'
+          borderColor={inputColor}
           focusBorderColor='brand.400'
           placeholder='Password'
           onChange={handleChangeRegisterInfo}
@@ -56,6 +62,8 @@ export const RegisterInput = ({ handleRegisterUser, handleChangeRegisterInfo, re
         <Button
           onClick={handleRegisterUser}
           fontWeight='black'
+          bg={inputColor}
+          color='brand.500'
         >
           Register
         </Button>

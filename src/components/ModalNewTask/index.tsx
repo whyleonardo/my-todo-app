@@ -45,12 +45,17 @@ export const ModalNewTask = ({ onClose, isOpen, handleChangeTask, handleCreateNe
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme='blue' mr={3} onClick={onClose}>
-              Close
-            </Button>
             <Button
+              bg='brand.400'
+              color='brand.100'
+              filter='auto'
+              _hover={{ brightness: '110%' }}
+              mr={3}
               onClick={handleCreateNewTask}>
-              Criar
+              Create
+            </Button>
+            <Button onClick={onClose}>
+              Close
             </Button>
           </ModalFooter>
         </ModalContent>

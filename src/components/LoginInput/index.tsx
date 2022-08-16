@@ -1,8 +1,7 @@
-import { Box, Button, Flex, Icon, Input, Text, useToast } from "@chakra-ui/react"
+import { Box, Button, Flex, Icon, Input, Text, useColorModeValue, useToast } from "@chakra-ui/react"
 import { Link } from "react-router-dom"
 import { CheckAnimation } from "../../animations/CheckAnimation"
 import { LoginInfoProps } from "../../pages/Login"
-
 interface LoginInputProps {
   handleChangeLoginInfo: (e: React.ChangeEvent<HTMLInputElement>) => void
   handleLoginUser: () => void
@@ -10,6 +9,9 @@ interface LoginInputProps {
 }
 
 export const LoginInput = ({ handleChangeLoginInfo, handleLoginUser, userInfo }: LoginInputProps) => {
+
+  const inputColor = useColorModeValue('brand.100', 'brand.100')
+
   return (
     <Flex w={{ base: '100%', md: '50%' }} direction='column' align='center' gap='1rem' justify='center' bg='brand.500'>
       <Box>
@@ -44,6 +46,7 @@ export const LoginInput = ({ handleChangeLoginInfo, handleLoginUser, userInfo }:
           value={userInfo.email}
           focusBorderColor='brand.400'
           color='brand.100'
+          borderColor={inputColor}
           placeholder='Email'
           onChange={handleChangeLoginInfo}
         />
@@ -53,6 +56,7 @@ export const LoginInput = ({ handleChangeLoginInfo, handleLoginUser, userInfo }:
           value={userInfo.password}
           focusBorderColor='brand.400'
           color='brand.100'
+          borderColor={inputColor}
           placeholder='Password'
           onChange={handleChangeLoginInfo}
         />
@@ -60,6 +64,8 @@ export const LoginInput = ({ handleChangeLoginInfo, handleLoginUser, userInfo }:
         <Button
           onClick={handleLoginUser}
           fontWeight='black'
+          bg={inputColor}
+          color='brand.500'
         >
           Login
         </Button>
