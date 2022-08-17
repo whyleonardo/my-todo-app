@@ -111,7 +111,7 @@ export const Tasks = ({ setIsAuth }: any) => {
 
   useEffect(() => {
     getTasks()
-  }, [currentUser])
+  }, [currentUser, tasks])
 
   return (
     <>
