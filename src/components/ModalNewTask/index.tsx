@@ -34,6 +34,7 @@ export const ModalNewTask = ({ onClose, isOpen, handleChangeTask, handleCreateNe
               value={newTaskInfo.title}
               placeholder='Title'
               onChange={handleChangeTask}
+              maxLength={15}
             />
             <Textarea
               name='description'
@@ -41,6 +42,7 @@ export const ModalNewTask = ({ onClose, isOpen, handleChangeTask, handleCreateNe
               resize='none'
               placeholder='Description'
               onChange={handleChangeTask}
+              maxLength={50}
             />
           </ModalBody>
 
@@ -51,7 +53,9 @@ export const ModalNewTask = ({ onClose, isOpen, handleChangeTask, handleCreateNe
               filter='auto'
               _hover={{ brightness: '110%' }}
               mr={3}
-              onClick={handleCreateNewTask}>
+              onClick={handleCreateNewTask}
+              disabled={newTaskInfo.title == ''}
+            >
               Create
             </Button>
             <Button onClick={onClose}>

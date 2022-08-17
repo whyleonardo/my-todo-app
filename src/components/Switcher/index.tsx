@@ -1,4 +1,4 @@
-import { Flex, useColorMode, useColorModeValue, Icon } from '@chakra-ui/react';
+import { Button, useColorMode, useColorModeValue, Icon } from '@chakra-ui/react';
 import { FaMoon, FaSun } from "react-icons/fa";
 
 export const SwitcherThemeMode = () => {
@@ -9,18 +9,18 @@ export const SwitcherThemeMode = () => {
 
 
   return (
-    <button
+    <Button
+      bg='none'
+      _hover={{ bg: 'none' }}
+      _active={{ bg: 'none' }}
       onClick={() => toggleColorMode()}
     >
       <Icon
-        pos='absolute'
-        top='5'
-        right='5'
         w={6}
         h={6}
         color={iconColor}
         _hover={{ color: 'brand.300' }}
         as={switchIcon} />
-    </button>
+    </Button>
   )
 }

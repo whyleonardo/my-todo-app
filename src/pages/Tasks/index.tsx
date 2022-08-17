@@ -10,7 +10,7 @@ import { Header } from "../../components/Header";
 import { TaskCard } from "../../components/TaskCard";
 
 import { db } from "../../services/FirebaseConfig";
-import { collection, getDocs, addDoc, DocumentData, CollectionReference, doc } from "firebase/firestore";
+import { collection, getDocs, addDoc, DocumentData, CollectionReference, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { ModalNewTask } from '../../components/ModalNewTask/index';
 import { useColorModeValue } from '@chakra-ui/react';
 
@@ -27,7 +27,8 @@ export const Tasks = ({ setIsAuth }: any) => {
     description: '',
     isCompleted: false
   })
-  const [tasksDocRef, setTasksDocRef] = useState<CollectionReference<DocumentData>>({} as CollectionReference<DocumentData>)
+  const [tasksCollectionRef, setTasksCollectionRef] = useState<CollectionReference<DocumentData>>({} as CollectionReference<DocumentData>)
+  const [userID, setUserID] = useState('')
 
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { logout, currentUser } = useAuth()
@@ -38,6 +39,8 @@ export const Tasks = ({ setIsAuth }: any) => {
       [e.target.name]: e.target.value
     })
   }
+
+  const userCollectionRef = collection(db, 'user')
 
   const navigate = useNavigate()
 
@@ -50,31 +53,30 @@ export const Tasks = ({ setIsAuth }: any) => {
       });
   }
 
-  const userCollectionRef = collection(db, 'user')
-
   const getTasks = async () => {
     const data = await getDocs(userCollectionRef)
 
-    const searchUserUid = data.docs.map((doc) => (doc.get('uid'))).filter((uid) => uid == currentUser.uid)
+    if (currentUser) {
+      const searchUserUid = data.docs.map((doc) => (doc.get('uid'))).filter((uid) => uid == currentUser.uid)
 
-    const searchUserID = data.docs
-      .map(doc => ({ ...doc.data(), id: doc.id, uid: doc.get('uid') }))
-      .filter((user) => user.uid == searchUserUid && user.id)
+      const searchUserID = data.docs
+        .map(doc => ({ ...doc.data(), id: doc.id, uid: doc.get('uid') }))
+        .filter((user) => user.uid == searchUserUid && user.id)
 
-    const { id, uid } = searchUserID[0]
+      const { id } = searchUserID[0]
 
-    const tasksCollectionRef = collection(db, `user/${id}/tasks`)
-    const tasks = await getDocs(tasksCollectionRef)
-    const tasksData = tasks.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
+      const tasksCollectionRef = collection(db, `user/${id}/tasks`)
+      const tasks = await getDocs(tasksCollectionRef)
+      const tasksData = tasks.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
 
-    console.log(tasksCollectionRef)
-
-    setTasksDocRef(tasksCollectionRef)
-    setTasks(tasksData)
+      setUserID(id)
+      setTasksCollectionRef(tasksCollectionRef)
+      setTasks(tasksData)
+    }
   }
 
   const handleCreateNewTask = async () => {
-    await addDoc(tasksDocRef, {
+    await addDoc(tasksCollectionRef, {
       title: newTaskInfo.title,
       description: newTaskInfo.description,
       isCompleted: newTaskInfo.isCompleted
@@ -90,7 +92,26 @@ export const Tasks = ({ setIsAuth }: any) => {
     getTasks()
   }
 
+  const handleCompleteTask = async (id: string) => {
+    const taskRef = doc(db, `user/${userID}/tasks/${id}`)
+    const newField = { isCompleted: true }
+
+    await updateDoc(taskRef, newField)
+    getTasks()
+  }
+
+  const handleDeleteTask = async (id: string) => {
+    const taskRef = doc(db, `user/${userID}/tasks/${id}`)
+    await deleteDoc(taskRef).then(() => { getTasks() })
+
+  }
+
+
   const titleColor = useColorModeValue('brand.400', 'brand.100')
+
+  useEffect(() => {
+    getTasks()
+  }, [currentUser])
 
   return (
     <>
@@ -103,18 +124,20 @@ export const Tasks = ({ setIsAuth }: any) => {
               />
 
               <Flex direction='column' h='150px' justify='center' m='1rem' px='2rem' >
-                <Button onClick={getTasks}>Oi</Button>
+
 
                 <Text color={titleColor} fontSize='1.5rem'>
                   Welcome, <Text as='span' fontWeight='bold'>{currentUser.displayName}!</Text>
                 </Text>
                 <Spacer />
-                <Text as='h1' fontWeight='bold' color={titleColor} fontSize='2rem'>Tasks</Text>
+                <Text as='h1' fontWeight='bold' color={titleColor} fontSize='2rem'
+                >
+                  Tasks
+                </Text>
                 <Divider orientation='horizontal' />
               </Flex>
 
               <Flex flexDirection='column' px='2rem' pb='1rem'>
-
                 <Button
                   onClick={onOpen}
                   alignSelf='end'
@@ -129,12 +152,20 @@ export const Tasks = ({ setIsAuth }: any) => {
 
                 <Grid pt='1rem' templateColumns='repeat(4, 1fr)' gap='2rem'>
                   {
-                    tasks.length > 0 && tasks.map((task) => (
-                      <TaskCard
-                        key={task.id}
-                        title={task.title}
-                      />
-                    ))
+                    tasks.length > 0
+                      ? tasks.map((task) => (
+                        <>
+                          <TaskCard
+                            key={task.id}
+                            title={task.title}
+                            description={task.description}
+                            handleCompleteTask={() => handleCompleteTask(task.id)}
+                            handleDeleteTask={() => handleDeleteTask(task.id)}
+                            isCompleted={task.isCompleted}
+                          />
+                        </>
+                      ))
+                      : <Text> You don't have any tasks yet </Text>
                   }
                 </Grid>
               </Flex>
