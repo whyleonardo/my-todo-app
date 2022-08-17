@@ -150,7 +150,7 @@ export const Tasks = ({ setIsAuth }: any) => {
                   Add New Task
                 </Button>
 
-                <Grid pt='1rem' templateColumns='repeat(4, 1fr)' gap='2rem'>
+                <Grid pt='1rem' mx={{ base: 'auto' }} templateColumns={{ md: 'repeat(4, 1fr)' }} gap='2rem'>
                   {
                     tasks.length > 0
                       ? tasks.map((task) => (
