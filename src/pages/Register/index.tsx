@@ -9,6 +9,7 @@ import { Loading } from "../../components/Loading"
 import { db } from "../../services/FirebaseConfig";
 import { addDoc, collection } from "firebase/firestore";
 import { useDatabase } from './../../contexts/DatabaseContext';
+import { WavesAnimation } from '../../animations/Waves/WavesAnimation';
 export interface RegisterInfoProps {
   email: string
   password: string
@@ -117,6 +118,8 @@ export const Register = ({ setIsAuth, isAuth }: RegisterProps) => {
               handleRegisterUser={handleRegisterUser}
               handleChangeRegisterInfo={handleChangeRegisterInfo}
             />
+
+            <WavesAnimation />
           </Flex >
         )
       }

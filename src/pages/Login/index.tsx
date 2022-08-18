@@ -7,7 +7,7 @@ import { signInWithEmailAndPassword } from "firebase/auth"
 import { LoginInput } from './../../components/LoginInput/index';
 import { ImageBackground } from "../../components/ImageBackground"
 
-
+import { WavesAnimation } from '../../animations/Waves/WavesAnimation';
 
 export interface LoginInfoProps {
   email: string
@@ -70,16 +70,18 @@ export const Login = ({ setIsAuth, isAuth }: LoginProps) => {
 
   return (
     <>
-      <Flex h='100vh'>
+      <Flex className='waves-wrapper' h='100vh'>
         <Show above='sm'>
           <ImageBackground src='./ImageLogo.svg' />
         </Show>
+
 
         <LoginInput
           handleChangeLoginInfo={handleChangeLoginInfo}
           handleLoginUser={handleLoginUser}
           userInfo={userInfo}
         />
+        <WavesAnimation />
       </Flex >
     </>
   )
